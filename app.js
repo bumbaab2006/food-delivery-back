@@ -29,4 +29,7 @@ app.use("/users", require("./routes/userRoutes"));
 app.use("/food-menu", require("./routes/foodCategoryRoutes"));
 app.use("/products", require("./routes/productRoutes"));
 
-app.listen(999, () => console.log("Server running on port 999"));
+// ✔ FIX: Render must use process.env.PORT
+const PORT = process.env.PORT || 999;
+
+app.listen(PORT, () => console.log("Server running on port " + PORT));
