@@ -1,0 +1,18 @@
+const express = require("express");
+const router = express.Router();
+const userController = require("../controllers/userController");
+const { verifyToken } = require("../middleware/auth"); // ⬅️ JWT middleware импорт
+
+// ---------------- AUTH ROUTES ----------------
+// ❗ Login, Signup бол хамгаалалт хэрэггүй
+router.post("/signup", userController.createUser);
+router.post("/login", userController.loginUser);
+
+// ---------------- USER CRUD ROUTES ----------------
+// ❗ Эдгээрийг хамгаална
+router.get("/", verifyToken, userController.getAllUsers);
+router.get("/:id", verifyToken, userController.getUserById);
+router.put("/:id", verifyToken, userController.updateUser);
+router.delete("/:id", verifyToken, userController.deleteUser);
+
+module.exports = router;
