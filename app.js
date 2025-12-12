@@ -10,7 +10,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://x32xf9g6-3000.asse.devtunnels.ms",
+      "https://food-delivery-cliejybtn-bumbayars-projects-336de64f.vercel.app", // ADD THIS
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
