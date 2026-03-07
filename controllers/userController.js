@@ -1,5 +1,17 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const getJwtConfig = () => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not configured");
+  }
+
+  return {
+    secret: process.env.JWT_SECRET,
+    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+  };
+};
 
 // ------------------ CREATE USER ------------------
 exports.createUser = async (req, res) => {
@@ -30,8 +42,6 @@ exports.createUser = async (req, res) => {
 };
 
 // ------------------ LOGIN USER ------------------
-const jwt = require("jsonwebtoken");
-
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -58,10 +68,11 @@ exports.loginUser = async (req, res) => {
     }
 
     // 🔹 JWT токен үүсгэх
+    const { secret, expiresIn } = getJwtConfig();
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      secret,
+      { expiresIn }
     );
 
     res.status(200).json({
@@ -72,6 +83,11 @@ exports.loginUser = async (req, res) => {
     });
   } catch (err) {
     console.error("Login error:", err);
+    if (err.message === "JWT_SECRET is not configured") {
+      res.status(500).json({ message: "Server auth configuration is missing" });
+      return;
+    }
+
     res.status(500).json({ message: "Server error" });
   }
 };
