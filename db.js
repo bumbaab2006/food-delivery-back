@@ -2,11 +2,12 @@ const mongoose = require("mongoose");
 
 let isConnected = false;
 
-const connectionUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+const connectionUri =
+  process.env.MONGO_URI || process.env.MONGODB_URI || process.env.MONGO_URL;
 
 const getConnectionHelpMessage = (error) => {
   if (!connectionUri) {
-    return "MONGO_URI env variable Render deer tohiruulagdaagui baina.";
+    return "MONGO_URI, MONGODB_URI, esvel MONGO_URL env variable Render deer tohiruulagdaagui baina.";
   }
 
   if (error?.code === "ENOTFOUND" && error?.syscall === "querySrv") {
@@ -25,7 +26,7 @@ const connectToDB = async () => {
 
   if (!connectionUri) {
     throw new Error(
-      "MONGO_URI env variable Render deer zaaval тохируулах шаардлагатай."
+      "MONGO_URI, MONGODB_URI, esvel MONGO_URL env variable Render deer zaaval тохируулах шаардлагатай."
     );
   }
 
