@@ -68,7 +68,9 @@ const OrderedFoodsController = {
         filter.orderStatus = normalizeStatus(status);
       }
 
-      const orders = await OrderedFoods.find(filter).sort({ orderedAt: -1 });
+      const orders = await OrderedFoods.find(filter)
+        .populate("foodItems.foodId", "image name")
+        .sort({ orderedAt: -1 });
       res.status(200).json(orders);
     } catch (error) {
       res.status(500).json({ message: error.message });
