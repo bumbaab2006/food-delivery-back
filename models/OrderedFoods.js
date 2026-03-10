@@ -31,7 +31,7 @@ const orderedFoodsSchema = new mongoose.Schema(
 
     orderStatus: {
       type: String,
-      enum: ["pending", "delivered", "canceled"],
+      enum: ["pending", "delivered", "cancelled", "canceled"],
       default: "pending",
     },
 

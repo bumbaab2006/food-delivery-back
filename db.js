@@ -2,12 +2,32 @@ const mongoose = require("mongoose");
 
 let isConnected = false;
 
-const connectionUri =
-  process.env.MONGO_URI ||
-  "mongodb+srv://Bumbayar:Pi06252311@food-delivery.bhwicih.mongodb.net/food-delivery?retryWrites=true&w=majority";
+const connectionUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+
+const getConnectionHelpMessage = (error) => {
+  if (!connectionUri) {
+    return "MONGO_URI env variable Render deer tohiruulagdaagui baina.";
+  }
+
+  if (error?.code === "ENOTFOUND" && error?.syscall === "querySrv") {
+    return `MongoDB cluster host oldsongui. Render deer baigaa MONGO_URI buruu baina: ${error.hostname}`;
+  }
+
+  if (error?.message?.includes("bad auth")) {
+    return "MongoDB username эсвэл password буруу байна.";
+  }
+
+  return "MongoDB holbolt amжилтгүй боллоо.";
+};
 
 const connectToDB = async () => {
   if (isConnected) return;
+
+  if (!connectionUri) {
+    throw new Error(
+      "MONGO_URI env variable Render deer zaaval тохируулах шаардлагатай."
+    );
+  }
 
   try {
     await mongoose.connect(connectionUri, {
@@ -18,6 +38,7 @@ const connectToDB = async () => {
     console.log("Database connection success");
   } catch (err) {
     console.log("Database connection failed", err);
+    console.error(getConnectionHelpMessage(err));
     throw err;
   }
 };

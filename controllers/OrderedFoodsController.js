@@ -1,10 +1,21 @@
 const OrderedFoods = require("../models/OrderedFoods");
 
+const normalizeStatus = (status) => {
+  if (status === "canceled") {
+    return "cancelled";
+  }
+
+  return status;
+};
+
 const OrderedFoodsController = {
   // CREATE ORDER
   createOrderedFood: async (req, res) => {
     try {
-      const order = new OrderedFoods(req.body);
+      const order = new OrderedFoods({
+        ...req.body,
+        orderStatus: normalizeStatus(req.body.orderStatus || "pending"),
+      });
       const saved = await order.save();
       res.status(201).json(saved);
     } catch (error) {
@@ -28,17 +39,16 @@ const OrderedFoodsController = {
   // GET ALL ORDERS (with optional date filter)
   getAllOrderedFoods: async (req, res) => {
     try {
-      const { start, end } = req.query;
+      const { start, end, userId, userEmail, status } = req.query;
 
       let filter = {};
 
-      // 🟦 If date range exists → add filter
       if (start && end) {
         const startDate = new Date(start);
-        startDate.setHours(0, 0, 0, 0); // Өдрийн эхлэл - локал цагтай
+        startDate.setHours(0, 0, 0, 0);
 
         const endDate = new Date(end);
-        endDate.setHours(23, 59, 59, 999); // Өдрийн төгсгөл - локал цагтай
+        endDate.setHours(23, 59, 59, 999);
 
         filter.orderedAt = {
           $gte: startDate,
@@ -46,7 +56,19 @@ const OrderedFoodsController = {
         };
       }
 
-      const orders = await OrderedFoods.find(filter).populate("user");
+      if (userId) {
+        filter["user.id"] = userId;
+      }
+
+      if (userEmail) {
+        filter["user.email"] = userEmail;
+      }
+
+      if (status) {
+        filter.orderStatus = normalizeStatus(status);
+      }
+
+      const orders = await OrderedFoods.find(filter).sort({ orderedAt: -1 });
       res.status(200).json(orders);
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -58,7 +80,7 @@ const OrderedFoodsController = {
     try {
       const updated = await OrderedFoods.findByIdAndUpdate(
         req.params.id,
-        { orderStatus: req.body.status },
+        { orderStatus: normalizeStatus(req.body.status) },
         { new: true }
       );
 
