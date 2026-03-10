@@ -4,6 +4,7 @@ let isConnected = false;
 
 const connectionUri =
   process.env.MONGO_URI || process.env.MONGODB_URI || process.env.MONGO_URL;
+const databaseName = process.env.MONGO_DB_NAME;
 
 const getConnectionHelpMessage = (error) => {
   if (!connectionUri) {
@@ -34,9 +35,12 @@ const connectToDB = async () => {
     await mongoose.connect(connectionUri, {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 10000,
+      dbName: databaseName || undefined,
     });
     isConnected = true;
-    console.log("Database connection success");
+    console.log(
+      `Database connection success (${mongoose.connection.host}/${mongoose.connection.name})`
+    );
   } catch (err) {
     console.log("Database connection failed", err);
     console.error(getConnectionHelpMessage(err));
